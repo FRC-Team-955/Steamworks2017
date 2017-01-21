@@ -24,17 +24,17 @@ public class CIM extends TalonSRX {
 	 * @param wantSpeed requested set speed 
 	 */
 	public void ramp(double wantSpeed){
-		 if(Math.abs(super.getSpeed() - wantSpeed) < CIMConfig.rampConstant){
-			 super.setSpeed(wantSpeed);
+		 if(Math.abs(super.get() - wantSpeed) < CIMConfig.rampConstant){
+			 super.set(wantSpeed);
 		 }
 		 
 		 else{
-			 if(super.getSpeed() - wantSpeed < 0){
-				 super.setSpeed(super.getSpeed() + CIMConfig.rampConstant);
+			 if(super.get() - wantSpeed < 0){
+				 super.set(super.get() + CIMConfig.rampConstant);
 			 }
 			 
 			 else{
-				 super.setSpeed(super.getSpeed() - CIMConfig.rampConstant);
+				 super.set(super.get() - CIMConfig.rampConstant);
 			 }
 			 
 		 }
