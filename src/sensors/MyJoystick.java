@@ -24,7 +24,7 @@ public class MyJoystick extends Joystick {
 	 */
 	public void update() {
 		//Current and previous joystick values
-		for(int i = 1; i < JoyConfig.MaxButtonNumber; i++){		//loop to debounce the joystick
+		for(int i = 0; i < JoyConfig.MaxButtonNumber; i++){		//loop to debounce the joystick
 			if(currentJoystick[i] && super.getRawButton(i)){
 				currentJoystick[i] = false;
 			}
@@ -37,5 +37,38 @@ public class MyJoystick extends Joystick {
 		}
 
 	}
+	
+	public boolean getButton(int button){
+		return currentJoystick[button - 1];
+		
+	}
+	
+	public boolean getDPadUp(){
+		return super.getPOV(0) == 0;
+	}
+	
+	public boolean getDPadDown(){
+		return super.getPOV(180) == 180;
+	}
+	
+	public boolean getDPadLeft(){
+		return super.getPOV(270) == 270;
+	}
+	
+	public boolean getDPadRight(){
+		return super.getPOV(90) == 90;
+	}
 
+	public double getRawLeftY(){
+		return super.getRawAxis(JoyConfig.chnLeftY);
+	}
+	public double getRawLeftX(){
+		return super.getRawAxis(JoyConfig.chnLeftX);
+	}
+	public double getRawRightY(){
+		return super.getRawAxis(JoyConfig.chnRightY);
+	}
+	public double getRawRightX(){
+		return super.getRawAxis(JoyConfig.chnRightX);
+	}
 }
