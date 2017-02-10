@@ -1,5 +1,6 @@
 package core;
 import sensors.MyJoystick;
+
 import config.JoyConfig;
 
 /**
@@ -9,21 +10,41 @@ import config.JoyConfig;
 public class Teleop {
 	MyJoystick joy = new MyJoystick(JoyConfig.portNum);
 	Drive drive;
+	Intake intake;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive){
+	public Teleop(Drive drive, Intake intake){
 		this.drive = drive;
+		this.intake = intake;
 	}
 	
 	/**
 	 * periodically runs robot functions that require joystick input
 	 */
 	public void run(){
-		double [] bean= getRTheta(joy.getRawLeftY(),joy.getRawRightX());
-		drive.driveRTheta(bean[0],bean[1]);
+		double[] rTheta = getRTheta(joy.getRawLeftY(),joy.getRawRightX());
+		drive.driveRTheta(rTheta[0],rTheta[1]);
+		
+		if(joy.getRawButton(JoyConfig.intakeButton)){
+			intakeToggle();
+		}
+			
+	}
+	
+	/**
+	 * toggles intake motor
+	 */
+	public void intakeToggle(){
+		if(intake.getIntakeSpeed() == 0){
+			intake.intakeStart();
+		}
+		
+		else{
+			intake.intakeStop();
+		}
 	}
 	
 	/**
