@@ -32,4 +32,14 @@ public class Intake {
 	public double getIntakeSpeed(){
 		return cim.getSpeed();
 	}
+	
+	public void intakeToggle(){
+		if(cim.get() == 0){
+			intakeStart();
+		}
+		
+		else{
+			intakeStop();
+		}
+	}
 }
