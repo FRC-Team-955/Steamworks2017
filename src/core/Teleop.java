@@ -11,57 +11,47 @@ public class Teleop {
 	MyJoystick joy = new MyJoystick(JoyConfig.portNum);
 	Drive drive;
 	Intake intake;
+	Agitator agitator;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive, Intake intake){
+	public Teleop(Drive drive, Intake intake, Agitator agitator){
 		this.drive = drive;
 		this.intake = intake;
+		this.agitator = agitator;
 	}
 	
 	/**
 	 * periodically runs robot functions that require joystick input
 	 */
 	public void run(){
-		double[] rTheta = getRTheta(joy.getRawLeftY(),joy.getRawRightX());
-		drive.driveRTheta(rTheta[0],rTheta[1]);
-		
-		if(joy.getRawButton(JoyConfig.intakeButton)){
-			intakeToggle();
-		}
-			
+		driveTeleop();			
 	}
 	
-	/**
-	 * toggles intake motor
-	 */
-	public void intakeToggle(){
-		if(intake.getIntakeSpeed() == 0){
+	public void driveTeleop() {
+		double[] rTheta = joy.getRTheta();
+		drive.move(rTheta[0],rTheta[1]);
+	}
+	
+	public void intakeTeleop() {
+		if(joy.getRawButton(JoyConfig.intakeOnButton)) {
 			intake.intakeStart();
-		}
-		
-		else{
+		} else if(joy.getRawButton(JoyConfig.intakeOffButton)) {
 			intake.intakeStop();
 		}
 	}
 	
-	/**
-	 * converts left and right to r and Theta. Yay.
-	 * @param y=y value for the joystick
-	 * @param x=x value for the joystick
-	 * @return double array of r and theta
-	 */
-	public double[] getRTheta(double y, double x){
-		double r = Math.sqrt(y*y + x*x);
-		double theta = Math.atan(x/y);
-		
-		if (joy.getRawRightX()<0){
-			theta+=Math.PI;
+	public void agitatorTeleop() {
+		if(joy.getRawButton(JoyConfig.agitatorOnButton)) {
+			agitator.startAgitator();	
+		} else if(joy.getRawButton(JoyConfig.agitatorOffButton)) {
+			agitator.stopAgitator();
 		}
-		 double[] rTheta = {r, theta};
-		 return rTheta;
-		
 	}
+	
+	
+	
+	
 }

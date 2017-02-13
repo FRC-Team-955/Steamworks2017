@@ -1,7 +1,10 @@
 package core;
 
 import config.IntakeConfig;
-import components.CIM;
+
+import com.ctre.CANTalon;
+import com.ctre.CANTalon.TalonControlMode;
+
 /**
  * 
  * @author Ajay 
@@ -9,32 +12,36 @@ import components.CIM;
  */
 
 public class Intake {
-	private CIM cim = new CIM(IntakeConfig.chnIntake);
+	private CANTalon intakeTalon = new CANTalon(IntakeConfig.chnIntake);
+	
+	public Intake() {
+		intakeTalon.changeControlMode(TalonControlMode.PercentVbus);
+	}
 	
 	/**
 	 * sets the intake motor to a constant in IntakeConfig
 	 */
 	public void intakeStart(){
-		cim.set(IntakeConfig.intakeSpeed);
+		intakeTalon.set(IntakeConfig.intakeSpeed);
 	}
 	
 	/**
 	 * stops intake motor
 	 */
 	public void intakeStop(){
-		cim.set(0);
+		intakeTalon.set(0);
 	}
-	
+
 	/**
 	 * returns intake speed
 	 * @return
 	 */
 	public double getIntakeSpeed(){
-		return cim.getSpeed();
+		return intakeTalon.getSpeed();
 	}
 	
 	public void intakeToggle(){
-		if(cim.get() == 0){
+		if(intakeTalon.get() == 0){
 			intakeStart();
 		}
 		
