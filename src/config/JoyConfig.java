@@ -16,5 +16,7 @@ public class JoyConfig {
 	public static final int intakeOffButton = 3;
 	public static final int agitatorOnButton = 4;
 	public static final int agitatorOffButton = 2;
+	public static final int gearOpenButton = 5;
+	public static final int gearCloseButton = 6;
 
 }

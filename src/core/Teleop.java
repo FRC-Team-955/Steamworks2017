@@ -12,22 +12,27 @@ public class Teleop {
 	Drive drive;
 	Intake intake;
 	Agitator agitator;
+	Gear gear;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive, Intake intake, Agitator agitator){
+	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear){
 		this.drive = drive;
 		this.intake = intake;
 		this.agitator = agitator;
+		this.gear = gear;
 	}
 	
 	/**
 	 * periodically runs robot functions that require joystick input
 	 */
 	public void run(){
-		driveTeleop();			
+		driveTeleop();	
+		intakeTeleop();
+		agitatorTeleop();
+		gearTeleop();
 	}
 	
 	public void driveTeleop() {
@@ -51,7 +56,11 @@ public class Teleop {
 		}
 	}
 	
-	
-	
-	
+	public void gearTeleop() {
+		if(joy.getRawButton(JoyConfig.gearOpenButton)) {
+			gear.open();
+		} else if(joy.getRawButton(JoyConfig.gearCloseButton)) {
+			gear.close();
+		}
+	}
 }

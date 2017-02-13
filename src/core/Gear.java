@@ -6,17 +6,20 @@ import  edu.wpi.first.wpilibj.Servo;
 public class Gear {
 	private Servo servoLeft;
 	private Servo servoRight;
+	private boolean open = false;
 	
 	public void open(){
-		servoLeft.setAngle(GearConfig.gearServoAngleLeft);
-		servoRight.setAngle(GearConfig.gearServoAngleRight);
+		servoLeft.setAngle(GearConfig.gearServoAngleLeftOpen);
+		servoRight.setAngle(GearConfig.gearServoAngleRightOpen);
+		open = true;
 	}
 	public void close(){
-		servoLeft.setAngle(0);
-		servoRight.setAngle(0);
+		servoLeft.setAngle(GearConfig.gearServoAngleLeftClosed);
+		servoRight.setAngle(GearConfig.gearServoAngleRightClosed);
+		open = false;
 	}
 	public void toggle(){
-		if (servoLeft.getAngle() == 0){
+		if (!open){
 			open();	
 		}
 		else

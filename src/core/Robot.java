@@ -17,7 +17,7 @@ public class Robot extends IterativeRobot {
 	Intake intake = new Intake();
 	Gear gear = new Gear();
 	Agitator agitator = new Agitator();
-	Teleop teleop = new Teleop(drive, intake, agitator);
+	Teleop teleop = new Teleop(drive, intake, agitator, gear);
 	
 	
 	/**

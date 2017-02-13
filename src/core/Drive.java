@@ -33,8 +33,8 @@ public class Drive {
 		double left = y + x;
 		double right = y - x;
 
-        leftDrive1.set(left* .7);
-        rightDrive1.set(right * .7);
+        leftDrive1.set(left);
+        rightDrive1.set(right);
         
 	}
 	
