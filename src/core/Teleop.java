@@ -13,16 +13,18 @@ public class Teleop {
 	Intake intake;
 	Agitator agitator;
 	Gear gear;
+	Shooter shooter;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear){
+	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter){
 		this.drive = drive;
 		this.intake = intake;
 		this.agitator = agitator;
 		this.gear = gear;
+		this.shooter = shooter;
 	}
 	
 	/**
@@ -33,6 +35,7 @@ public class Teleop {
 		intakeTeleop();
 		agitatorTeleop();
 		gearTeleop();
+		shooterTeleop();
 	}
 	
 	public void driveTeleop() {
@@ -61,6 +64,14 @@ public class Teleop {
 			gear.open();
 		} else if(joy.getRawButton(JoyConfig.gearCloseButton)) {
 			gear.close();
+		}
+	}
+	
+	public void shooterTeleop() {
+		if(joy.getRawButton(JoyConfig.shooterStartButton)) {
+			shooter.startShooter();
+		} else if(joy.getRawButton(JoyConfig.shooterStopButton)) {
+			shooter.stopShooter();
 		}
 	}
 }
