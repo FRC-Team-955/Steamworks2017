@@ -1,8 +1,8 @@
 package core;
 
+import config.PathConfig;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import vision.VisionCore;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -18,7 +18,9 @@ public class Robot extends IterativeRobot {
 	Gear gear = new Gear();
 	Agitator agitator = new Agitator();
 	Shooter shooter = new Shooter();
-	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter);
+	VisionCore vision = new VisionCore();
+	PathPlanner planner = new PathPlanner(PathConfig.dt, PathConfig.maxVel, PathConfig.maxAcc, PathConfig.robotTrackWidth);
+	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, planner, vision);
 	
 	
 	/**

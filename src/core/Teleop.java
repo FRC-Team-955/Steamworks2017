@@ -1,7 +1,8 @@
 package core;
 import sensors.MyJoystick;
-
+import vision.VisionCore;
 import config.JoyConfig;
+import config.PathConfig;
 
 /**
  * @author Jessie
@@ -14,17 +15,21 @@ public class Teleop {
 	Agitator agitator;
 	Gear gear;
 	Shooter shooter;
+	PathPlanner planner;
+	VisionCore vision;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter){
+	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter,  PathPlanner planner, VisionCore vision){
 		this.drive = drive;
 		this.intake = intake;
 		this.agitator = agitator;
 		this.gear = gear;
 		this.shooter = shooter;
+		this.planner = planner;
+		this.vision = vision;
 	}
 	
 	/**
@@ -36,6 +41,7 @@ public class Teleop {
 		agitatorTeleop();
 		gearTeleop();
 		shooterTeleop();
+		vision.update();
 	}
 	
 	public void driveTeleop() {
@@ -64,6 +70,14 @@ public class Teleop {
 			gear.open();
 		} else if(joy.getRawButton(JoyConfig.gearCloseButton)) {
 			gear.close();
+		}
+		
+		
+		// Path planning with vision to drop off gear
+		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
+			planner.generateProfileFromDistances(PathConfig.numPoints, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY());
+		} if(joy.getButton(JoyConfig.followPathButton) && planner.getLeftProfile().length != 0) {
+			
 		}
 	}
 	

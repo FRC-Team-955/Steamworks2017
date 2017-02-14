@@ -1,9 +1,6 @@
 package vision;
 
-import java.rmi.server.ServerCloneException;
-
-import config.DriveConfig;
-import config.VisionConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionCore {
 	private XMLParser xmlParser = new XMLParser();
@@ -19,7 +16,7 @@ public class VisionCore {
 	}
 	
 	public void update() {
-		System.out.println(socket.getXML());
+		SmartDashboard.putString("xml", socket.getXML());
 		try{
 			vs = xmlParser.parseString(socket.getXML());
 		} catch(Exception e) {

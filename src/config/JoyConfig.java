@@ -20,5 +20,7 @@ public class JoyConfig {
 	public static final int gearCloseButton = 6;
 	public static final int shooterStartButton = 7;
 	public static final int shooterStopButton = 8;
+	public static final int generatePathButton = 9;
+	public static final int followPathButton = 10;
 	
 }
