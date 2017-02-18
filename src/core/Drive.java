@@ -11,6 +11,9 @@ public class Drive {
 	CANTalon rightDrive1 = new CANTalon(DriveConfig.rightTalonChn1);
 	CANTalon rightDrive2 = new CANTalon(DriveConfig.rightTalonChn2);
 	
+	MotionProfileFollower leftFollower = new MotionProfileFollower(leftDrive1, true);
+	MotionProfileFollower rightFollower = new MotionProfileFollower(rightDrive1, false);
+	
 	double xPos, yPos, x, y;
 	
 	public Drive() {
@@ -35,7 +38,6 @@ public class Drive {
 
         leftDrive1.set(left);
         rightDrive1.set(right);
-        
 	}
 	
 	public void set(double left, double right) {
