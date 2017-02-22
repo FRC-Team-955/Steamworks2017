@@ -157,7 +157,6 @@ public class MotionProfileFollower {
 				 * something is wrong. Talon is not present, unplugged, breaker
 				 * tripped
 				 */
-				instrumentation.OnNoProgress();
 			} else {
 				--_loopTimeout;
 			}
@@ -231,16 +230,15 @@ public class MotionProfileFollower {
 			}
 		}
 		/* printfs and/or logging */
-		instrumentation.process(_status);
 	}
 
 	/** Start filling the MPs to all of the involved Talons. */
 	private void startFilling() {
 		/* since this example only has one talon, just update that one */
 		if(left) {
-			startFilling(GeneratedMotionProfile.leftPoints, GeneratedMotionProfile.kNumPoints);	
+			//startFilling(leftPoints, kNumPoints);	
 		} else {
-			startFilling(GeneratedMotionProfile.rightPoints, GeneratedMotionProfile.kNumPoints);
+			//startFilling(rightPoints, kNumPoints);
 		}
 	}
 
@@ -252,7 +250,6 @@ public class MotionProfileFollower {
 		/* did we get an underrun condition since last time we checked ? */
 		if (_status.hasUnderrun) {
 			/* better log it so we know about it */
-			instrumentation.OnUnderrun();
 			/*
 			 * clear the error. This flag does not auto clear, this way 
 			 * we never miss logging it.

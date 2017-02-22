@@ -1,7 +1,7 @@
 package config;
 
 public class ShooterConfig {
-	public static final int shooterTalonChn = 6;
+	public static final int shooterTalonChn = 8;
 	public static final double shooterSpeed = 20;
 	
 	public static final double kP = 0.1;

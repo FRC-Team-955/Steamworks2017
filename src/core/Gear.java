@@ -4,9 +4,13 @@ import config.GearConfig;
 import  edu.wpi.first.wpilibj.Servo;
 
 public class Gear {
-	private Servo servoLeft;
-	private Servo servoRight;
+	private Servo servoLeft = new Servo(GearConfig.leftChn);
+	private Servo servoRight = new Servo(GearConfig.rightChn);
 	private boolean open = false;
+	
+	public Gear() {
+		open();
+	}
 	
 	public void open(){
 		servoLeft.setAngle(GearConfig.gearServoAngleLeftOpen);

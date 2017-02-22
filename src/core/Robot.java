@@ -19,8 +19,9 @@ public class Robot extends IterativeRobot {
 	Agitator agitator = new Agitator();
 	Shooter shooter = new Shooter();
 	VisionCore vision = new VisionCore();
+	Climber climber = new Climber();
 	PathPlanner planner = new PathPlanner(PathConfig.dt, PathConfig.maxVel, PathConfig.maxAcc, PathConfig.robotTrackWidth);
-	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, planner, vision);
+	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, planner, vision, climber);
 	
 	
 	/**

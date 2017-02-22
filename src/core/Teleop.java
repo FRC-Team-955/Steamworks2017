@@ -17,12 +17,13 @@ public class Teleop {
 	Shooter shooter;
 	PathPlanner planner;
 	VisionCore vision;
+	Climber climber;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter,  PathPlanner planner, VisionCore vision){
+	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter,  PathPlanner planner, VisionCore vision, Climber climber){
 		this.drive = drive;
 		this.intake = intake;
 		this.agitator = agitator;
@@ -30,6 +31,7 @@ public class Teleop {
 		this.shooter = shooter;
 		this.planner = planner;
 		this.vision = vision;
+		this.climber = climber;
 	}
 	
 	/**
@@ -40,8 +42,19 @@ public class Teleop {
 		intakeTeleop();
 		agitatorTeleop();
 		gearTeleop();
-		shooterTeleop();
+		//shooterTeleop();
+		climberTeleop();
 		vision.update();
+	}
+	
+	public void climberTeleop() {
+		if(joy.getRawButton(JoyConfig.climbButton)) {
+			climber.startClimber();
+		} else if(joy.getRawButton(JoyConfig.climbSlowButton)) {
+			climber.startClimberSlow();
+		} else if(joy.getDpadDown()){
+			climber.stopClimber();
+		}
 	}
 	
 	public void driveTeleop() {

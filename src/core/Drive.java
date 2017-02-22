@@ -36,12 +36,41 @@ public class Drive {
 		double left = y + x;
 		double right = y - x;
 
-        leftDrive1.set(left);
-        rightDrive1.set(right);
+		ramp(-left, right);
 	}
 	
 	public void set(double left, double right) {
 		leftDrive1.set(left);
 		rightDrive1.set(right);
+	}
+	
+	public void ramp(double wantSpeedLeft, double wantSpeedRight){
+		if(Math.abs(wantSpeedLeft - leftDrive1.get()) > DriveConfig.rampRate){
+			
+			if(wantSpeedLeft > leftDrive1.get())
+				leftDrive1.set(leftDrive1.get() +  DriveConfig.rampRate);
+			
+			else
+				leftDrive1.set(leftDrive1.get() - DriveConfig.rampRate);
+			
+		}
+		
+		else {
+			leftDrive1.set(wantSpeedLeft);
+		}
+		
+		if(Math.abs(wantSpeedRight - rightDrive1.get()) > DriveConfig.rampRate){
+			
+			if(wantSpeedRight > rightDrive1.get())
+				rightDrive1.set(rightDrive1.get() +  DriveConfig.rampRate);
+			
+			else
+				rightDrive1.set(rightDrive1.get() - DriveConfig.rampRate);
+			
+		}
+		
+		else {
+			rightDrive1.set(wantSpeedRight);
+		}
 	}
 }
