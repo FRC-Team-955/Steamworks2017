@@ -2,10 +2,10 @@ package core;
 
 import java.util.ArrayList;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import config.PathConfig;
 
 public class PathPlanner {
-	private double dt, maxVel, maxAcc, robotTrackWidth;
+	private double dt, maxVel, maxAcc, maxJerk, robotTrackWidth;
 	private double[][] leftPath, rightPath, leftProfile, rightProfile;
 	
 	/**
@@ -16,23 +16,50 @@ public class PathPlanner {
 	 * @param maxJerk Max jerk
 	 * @param robotTrackWidth Width of robot in feet
 	 */
-	public PathPlanner(double dt, double maxVel, double maxAcc, double robotTrackWidth) {
+	public PathPlanner(double dt, double maxVel, double maxAcc, double maxJerk, double robotTrackWidth) {
 		this.dt = dt;
 		this.robotTrackWidth = robotTrackWidth;
 		this.maxVel = maxVel;
 		this.maxAcc = maxAcc;
+		this.maxJerk = maxJerk;
 	}
 	
-	private double[][] generatePathPoints(int numPoints, double offset, double distance) {
-		double[][] points = new double[numPoints][2];
-		double vertStretch = 0.125 * distance;
-		double horzStretch = 1.185 * offset;
+	public double[][] generatePathPoints(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAngle) {
+		double[][] points = new double[numPointsCircle + numPointsTan + numPointsTransition][2];
+		double radius = PathConfig.circleRad;
+		double transitionDistance = PathConfig.transDist;
 		
-		double x = -0.5 * offset;
-		for(int i = 0; i < numPoints; i++) {
-			points[i][1] = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * distance);
-			points[i][0] = x + (offset/2);
-			x += ((offset) / (numPoints));	
+		double startPoint = radius * Math.sin(robotAngle);
+		double x = startPoint;
+		double startY = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius;
+		for(int i = 0; i < numPointsCircle; i++) {
+			points[i][1] = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius - startY;
+			if(robotAngle < Math.PI/2) {
+				points[i][0] = x - startPoint;
+				x += (radius - startPoint) / numPointsCircle;
+			} else {
+				points[i][0] = x - startPoint;
+				x -= (radius + startPoint) / numPointsCircle;
+			}
+		}
+		
+		double y = points[numPointsCircle - 1][1];
+		for(int i = numPointsCircle; i < numPointsTransition + numPointsCircle; i++) {
+			points[i][1] = y;
+			points[i][0] = points[numPointsCircle - 1][0];
+			y += transitionDistance/numPointsTransition;
+		}
+		
+		double tanOffset = offset - points[numPointsTransition + numPointsCircle - 1][0];
+		double tanDistance = distance - points[numPointsTransition + numPointsCircle - 1][1];
+		x = -0.5 * tanOffset;
+		double vertStretch = 0.125 * tanDistance;
+		double horzStretch = 1.185 * tanOffset;
+
+		for(int i = numPointsTransition + numPointsCircle; i < numPointsTan + numPointsCircle + numPointsTransition; i++) {
+			points[i][1] = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * tanDistance) + points[numPointsTransition + numPointsCircle - 1][1];
+			points[i][0] = x + (tanOffset/2) + points[numPointsTransition + numPointsCircle - 1][0];
+			x += ((tanOffset) / (numPointsTan));	
 		}	
 		
 		return points;
@@ -69,7 +96,7 @@ public class PathPlanner {
 		return leftRightPosVel;
 	}
 	
-	private double[][] removePoints(double[][] path, double currentVel) {
+	public double[][] removePoints(double[][] path, double currentVel) {
 		double distance = 0;
 		double lastVel = currentVel;
 		double segDistance = 0;
@@ -83,7 +110,7 @@ public class PathPlanner {
 			
 			if(distance/dt > maxVel || (distance/dt) - lastVel > maxAcc * dt) {
 				traj.add(new double[] {path[i][0], path[i][1]});
-				System.out.println("distance/dt = " + (distance/dt) + "\t\t\tacceleration = " + ((distance/dt) - lastVel) + "\t\tlastVel = " + lastVel + "\t\tindex: " + i);
+				//System.out.println("distance/dt = " + (distance/dt) + "\t\t\tacceleration = " + ((distance/dt) - lastVel) + "\t\tlastVel = " + lastVel + "\t\tindex: " + i);
 				lastVel = (distance - segDistance)/dt;
 				distance = 0;
 				i--;
@@ -147,22 +174,10 @@ public class PathPlanner {
 		}
 	}
 	
-	public void generateProfileFromDistances(int numPoints, double offset, double distance) {
-		leftRight(removePoints(generatePathPoints(numPoints, offset, distance), 0));
+	public void generateProfileFromDistances(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAng) {
+		leftRight(removePoints(generatePathPoints(numPointsCircle, numPointsTan, numPointsTransition, offset, distance, Math.toRadians(robotAng)), 0));
 		generateProfileArray(generateMotionProfile());
 	}
-	
-	/*
-	public void generateProfileFromDistances(int numPoints, double offset, double distance) {
-		double time = System.currentTimeMillis();
-		leftRight(removePoints(generatePathPoints(numPoints, offset, distance), 0));
-		generateProfileArray(generateMotionProfile());
-		SmartDashboard.putNumber("TimeToGenerate", (System.currentTimeMillis() - time));
-		GeneratedMotionProfile.leftPoints = leftProfile;
-		GeneratedMotionProfile.rightPoints = rightProfile;
-		GeneratedMotionProfile.kNumPoints = leftProfile.length;
-	}
-	 */
 	
 	public double[][] getLeftProfile() {
 		return leftProfile;

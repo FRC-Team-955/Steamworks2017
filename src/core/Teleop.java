@@ -88,7 +88,7 @@ public class Teleop {
 		
 		// Path planning with vision to drop off gear
 		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
-			planner.generateProfileFromDistances(PathConfig.numPoints, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY());
+			planner.generateProfileFromDistances(PathConfig.numPointsCircle, PathConfig.numPointsTan, PathConfig.numPointsTrans, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
 		} if(joy.getButton(JoyConfig.followPathButton) && planner.getLeftProfile().length != 0) {
 			
 		}
