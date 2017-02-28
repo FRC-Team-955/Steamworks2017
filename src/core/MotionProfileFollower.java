@@ -28,6 +28,8 @@ import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.Notifier;
 import com.ctre.CANTalon.TalonControlMode;
 
+import config.PathConfig;
+
 public class MotionProfileFollower {
 	
 	/**
@@ -80,7 +82,7 @@ public class MotionProfileFollower {
 	 */
 	private static final int kNumLoopsTimeout = 10;
 	
-	private boolean left;
+	private double[][] points = {};
 	
 	/**
 	 * Lets create a periodic task to funnel our trajectory points into our talon.
@@ -103,15 +105,14 @@ public class MotionProfileFollower {
 	 * @param talon
 	 *            reference to Talon object to fetch motion profile status from.
 	 */
-	public MotionProfileFollower(CANTalon talon, boolean left) {
+	public MotionProfileFollower(CANTalon talon) {
 		_talon = talon;
-		this.left = left;
 		/*
 		 * since our MP is 10ms per point, set the control frame rate and the
 		 * notifer to half that
 		 */
-		_talon.changeMotionControlFramePeriod(5);
-		_notifer.startPeriodic(0.005);
+		_talon.changeMotionControlFramePeriod((int)(PathConfig.dt * 1000)/2);
+		_notifer.startPeriodic(PathConfig.dt/2);
 	}
 
 	/**
@@ -234,13 +235,10 @@ public class MotionProfileFollower {
 
 	/** Start filling the MPs to all of the involved Talons. */
 	private void startFilling() {
-		/* since this example only has one talon, just update that one */
-		if(left) {
-			//startFilling(leftPoints, kNumPoints);	
-		} else {
-			//startFilling(rightPoints, kNumPoints);
-		}
+		startFilling(points, points.length);	
 	}
+	
+	
 
 	private void startFilling(double[][] profile, int totalCnt) {
 
@@ -288,8 +286,12 @@ public class MotionProfileFollower {
 	 * Called by application to signal Talon to start the buffered MP (when it's
 	 * able to).
 	 */
-	void startMotionProfile() {
+	public void startMotionProfile() {
 		_bStart = true;
+	}
+	
+	public void setPoints(double[][] points) {
+		this.points = points;
 	}
 
 	/**
@@ -298,7 +300,7 @@ public class MotionProfileFollower {
 	 *         motion-profile output, 1 for enable motion-profile, 2 for hold
 	 *         current motion profile trajectory point.
 	 */
-	CANTalon.SetValueMotionProfile getSetValue() {
+	public CANTalon.SetValueMotionProfile getSetValue() {
 		return _setValue;
 	}
 }

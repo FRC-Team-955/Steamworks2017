@@ -6,4 +6,5 @@ public class DriveConfig {
 	public static int rightTalonChn1 = 2;
 	public static int rightTalonChn2 = 1;
 	public static final double rampRate = 0.2;
+	public static final int codesPerRev = 200;
 }

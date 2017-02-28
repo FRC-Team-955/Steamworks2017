@@ -3,6 +3,7 @@ package core;
 import java.util.ArrayList;
 
 import config.PathConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PathPlanner {
 	private double dt, maxVel, maxAcc, maxJerk, robotTrackWidth;
@@ -175,8 +176,10 @@ public class PathPlanner {
 	}
 	
 	public void generateProfileFromDistances(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAng) {
+		SmartDashboard.putString("profileGenerating", "Generating");
 		leftRight(removePoints(generatePathPoints(numPointsCircle, numPointsTan, numPointsTransition, offset, distance, Math.toRadians(robotAng)), 0));
 		generateProfileArray(generateMotionProfile());
+		SmartDashboard.putString("profileGenerating", "Done Generating");
 	}
 	
 	public double[][] getLeftProfile() {

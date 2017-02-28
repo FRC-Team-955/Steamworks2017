@@ -19,6 +19,8 @@ public class Teleop {
 	VisionCore vision;
 	Climber climber;
 	
+	private boolean notStarted = true;
+	
 	/**
 	 * constructor
 	 * @param drive Drive object
@@ -89,8 +91,16 @@ public class Teleop {
 		// Path planning with vision to drop off gear
 		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
 			planner.generateProfileFromDistances(PathConfig.numPointsCircle, PathConfig.numPointsTan, PathConfig.numPointsTrans, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
-		} if(joy.getButton(JoyConfig.followPathButton) && planner.getLeftProfile().length != 0) {
-			
+			drive.setPaths(planner.getLeftProfile(), planner.getRightProfile());
+		} if(joy.getRawButton(JoyConfig.followPathButton)) {
+			drive.motionProfileMode();
+			if(notStarted) {
+				notStarted = false;
+				drive.startMotionProfile();	
+			}
+		} else {
+			drive.driveMode();
+			notStarted = true;
 		}
 	}
 	
