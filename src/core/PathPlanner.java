@@ -6,7 +6,7 @@ import config.PathConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PathPlanner {
-	private double dt, maxVel, maxAcc, maxJerk, robotTrackWidth;
+	private double dt, maxVel, maxAcc, robotTrackWidth;
 	private double[][] leftPath, rightPath, leftProfile, rightProfile;
 	
 	/**
@@ -17,12 +17,11 @@ public class PathPlanner {
 	 * @param maxJerk Max jerk
 	 * @param robotTrackWidth Width of robot in feet
 	 */
-	public PathPlanner(double dt, double maxVel, double maxAcc, double maxJerk, double robotTrackWidth) {
+	public PathPlanner(double dt, double maxVel, double maxAcc, double robotTrackWidth) {
 		this.dt = dt;
 		this.robotTrackWidth = robotTrackWidth;
 		this.maxVel = maxVel;
 		this.maxAcc = maxAcc;
-		this.maxJerk = maxJerk;
 	}
 	
 	public double[][] generatePathPoints(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAngle) {
