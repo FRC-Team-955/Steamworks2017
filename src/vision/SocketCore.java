@@ -41,7 +41,7 @@ public class SocketCore implements Runnable {
 		
 		try {
 			while(true) {
-				out.println(Integer.toString(updateNumber));
+				out.println("Peg");
 				try {
 					String input = in.readLine();
 					xml = input;	
