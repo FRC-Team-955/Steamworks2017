@@ -21,8 +21,8 @@ public class Climber {
 	}
 	
 	public void startClimberSlow() {
-		climberTalonOne.set(0.6);
-		climberTalonTwo.set(0.6);
+		climberTalonOne.set(0.3);
+		climberTalonTwo.set(0.3);
 	}
 	
 	public void stopClimber() {

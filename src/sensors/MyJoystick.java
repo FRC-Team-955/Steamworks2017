@@ -2,6 +2,7 @@ package sensors;
 
 import config.JoyConfig;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Adds functions to assist in joystick use

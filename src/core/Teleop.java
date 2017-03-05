@@ -3,6 +3,7 @@ import sensors.MyJoystick;
 import vision.VisionCore;
 import config.JoyConfig;
 import config.PathConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * @author Jessie
@@ -15,23 +16,24 @@ public class Teleop {
 	Agitator agitator;
 	Gear gear;
 	Shooter shooter;
-	PathPlanner planner;
 	VisionCore vision;
 	Climber climber;
+	PathPlanner planner;
 	
 	private boolean notStarted = true;
+	private double time;
+	private boolean generating = false;
 	
 	/**
 	 * constructor
 	 * @param drive Drive object
 	 */
-	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter,  PathPlanner planner, VisionCore vision, Climber climber){
+	public Teleop(Drive drive, Intake intake, Agitator agitator, Gear gear, Shooter shooter, VisionCore vision, Climber climber){
 		this.drive = drive;
 		this.intake = intake;
 		this.agitator = agitator;
 		this.gear = gear;
 		this.shooter = shooter;
-		this.planner = planner;
 		this.vision = vision;
 		this.climber = climber;
 	}
@@ -47,6 +49,7 @@ public class Teleop {
 		//shooterTeleop();
 		climberTeleop();
 		vision.update();
+		joy.update();
 	}
 	
 	public void climberTeleop() {
@@ -90,14 +93,28 @@ public class Teleop {
 		
 		// Path planning with vision to drop off gear
 		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
-			planner.generateProfileFromDistances(PathConfig.numPointsCircle, PathConfig.numPointsTan, PathConfig.numPointsTrans, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
-			drive.setPaths(planner.getLeftProfile(), planner.getRightProfile());
-		} if(joy.getRawButton(JoyConfig.followPathButton)) {
-			drive.motionProfileMode();
+			generating = true;
+			time = System.currentTimeMillis();
+			planner = new PathPlanner(PathConfig.dt, PathConfig.maxVel, PathConfig.maxAcc, PathConfig.robotTrackWidth, PathConfig.numPointsCircle, PathConfig.numPointsTan, PathConfig.numPointsTrans, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
+			SmartDashboard.putNumber("generationTimeMs", -2);
+			new Thread(planner).start();
+		} 
+		
+		if(generating && planner.getStatus()) {
+			generating = false;
+			SmartDashboard.putNumber("generationTimeMs", (time - System.currentTimeMillis()));
+			drive.setPaths(planner.getLeftProfile(), planner.getRightProfile());				
+		}
+		
+		if(joy.getDpadUp()) {
 			if(notStarted) {
 				notStarted = false;
 				drive.startMotionProfile();	
 			}
+		}
+		
+		if(joy.getRawButton(JoyConfig.followPathButton)) {
+			drive.motionProfileMode();
 		} else {
 			drive.driveMode();
 			notStarted = true;

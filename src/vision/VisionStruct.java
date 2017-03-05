@@ -3,6 +3,7 @@ package vision;
 import org.w3c.dom.Element;
 
 import config.VisionConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class VisionStruct {
@@ -41,11 +42,19 @@ public class VisionStruct {
 	
 	public void update(Element n) {
 		try {
-			distX = Double.parseDouble(n.getAttribute("distX"));
-			distY = Double.parseDouble(n.getAttribute("distY"));
-			ang = Double.parseDouble(n.getAttribute("ang"));
-			timeMs = Integer.parseInt(n.getAttribute("timeMs"));
-			tapeStatus = n.getAttribute("distX");
+			double distX = Double.parseDouble(n.getAttribute("x_offset_to_target"));
+			double distY = Double.parseDouble(n.getAttribute("distance_to_target"));
+			double ang = Double.parseDouble(n.getAttribute("angle"));
+			this.distX = Math.cos(Math.toRadians(90-ang)) * distY;
+			this.distY = Math.sin(Math.toRadians(90-ang)) * distY;
+			this.ang = -ang + 90;
+			timeMs = Integer.parseInt(n.getAttribute("timestamp"));
+			tapeStatus = n.getAttribute("stripes_found");
+			SmartDashboard.putNumber("distXVision", this.distX);
+			SmartDashboard.putNumber("distYVision", this.distY);
+			SmartDashboard.putNumber("angVision", this.ang);
+			SmartDashboard.putNumber("timeMsVision", timeMs);
+			SmartDashboard.putString("tapeStatus", tapeStatus);
 		} catch(NumberFormatException e) {
 			//Parsing empty string
 			System.out.println("NumberFormatException: string from vision is empty");

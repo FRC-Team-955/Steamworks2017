@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import config.PathConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class PathPlanner {
-	private double dt, maxVel, maxAcc, robotTrackWidth;
+public class PathPlanner implements Runnable {
+	private double dt, maxVel, maxAcc, robotTrackWidth, offset, distance, robotAng;
+	private int numPointsTan, numPointsCircle, numPointsTransition;
+	private boolean gottenLeft, gottenRight, pathCompleted = false;
 	private double[][] leftPath, rightPath, leftProfile, rightProfile;
 	
 	/**
@@ -17,11 +19,17 @@ public class PathPlanner {
 	 * @param maxJerk Max jerk
 	 * @param robotTrackWidth Width of robot in feet
 	 */
-	public PathPlanner(double dt, double maxVel, double maxAcc, double robotTrackWidth) {
+	public PathPlanner(double dt, double maxVel, double maxAcc, double robotTrackWidth, int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAng) {
 		this.dt = dt;
 		this.robotTrackWidth = robotTrackWidth;
 		this.maxVel = maxVel;
 		this.maxAcc = maxAcc;
+		this.numPointsCircle = numPointsCircle;
+		this.numPointsTan = numPointsTan;
+		this.numPointsTransition = numPointsTransition;
+		this.offset = offset;
+		this.distance = distance;
+		this.robotAng = robotAng;
 	}
 	
 	public double[][] generatePathPoints(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAngle) {
@@ -60,8 +68,8 @@ public class PathPlanner {
 			points[i][1] = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * tanDistance) + points[numPointsTransition + numPointsCircle - 1][1];
 			points[i][0] = x + (tanOffset/2) + points[numPointsTransition + numPointsCircle - 1][0];
 			x += ((tanOffset) / (numPointsTan));	
-		}	
-		
+		}
+
 		return points;
 	}
 	
@@ -106,8 +114,7 @@ public class PathPlanner {
 		for(int i = 0; i < path.length-1; i++) {
 			segDistance = Math.sqrt(Math.pow((path[i+1][0] - path[i][0]),2) + Math.pow((path[i+1][1] - path[i][1]),2));
 			distance += segDistance;
-			//System.out.println("distance/dt = " + (distance/dt) + "\t\t\tacceleration = " + ((distance/dt) - lastVel) + "\t\t\tlastVel = " + lastVel);
-			
+						
 			if(distance/dt > maxVel || (distance/dt) - lastVel > maxAcc * dt) {
 				traj.add(new double[] {path[i][0], path[i][1]});
 				//System.out.println("distance/dt = " + (distance/dt) + "\t\t\tacceleration = " + ((distance/dt) - lastVel) + "\t\tlastVel = " + lastVel + "\t\tindex: " + i);
@@ -163,30 +170,61 @@ public class PathPlanner {
 		leftProfile = new double[leftRightPosVel.length][3];
 		rightProfile = new double[leftRightPosVel.length][3];
 		
+		String left = "";
+		String right = "";
+		
 		for(int i = 0; i < leftRightPosVel.length; i++) {
 			leftProfile[i][0] = leftRightPosVel[i][0];
 			leftProfile[i][1] = leftRightPosVel[i][1];
-			leftProfile[i][2] = dt;
+			leftProfile[i][2] = dt * 1000;
+			
+			left += leftProfile[i][0] + "    ";
 			
 			rightProfile[i][0] = leftRightPosVel[i][2];
 			rightProfile[i][1] = leftRightPosVel[i][3];
-			rightProfile[i][2] = dt;
+			rightProfile[i][2] = dt * 1000;
+
+			right += rightProfile[i][0] + "    ";
 		}
+		SmartDashboard.putString("leftProfileDist", left);
+		SmartDashboard.putString("rightProfileDist", right);
 	}
 	
 	public void generateProfileFromDistances(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAng) {
-		SmartDashboard.putString("profileGenerating", "Generating");
+		SmartDashboard.putBoolean("pathCompleted", pathCompleted);
+		SmartDashboard.putNumber("FinishedParts", 0);
 		leftRight(removePoints(generatePathPoints(numPointsCircle, numPointsTan, numPointsTransition, offset, distance, Math.toRadians(robotAng)), 0));
 		generateProfileArray(generateMotionProfile());
-		SmartDashboard.putString("profileGenerating", "Done Generating");
+		pathCompleted = true;
+		SmartDashboard.putBoolean("pathCompleted", pathCompleted);
 	}
 	
 	public double[][] getLeftProfile() {
+		gottenLeft = true;
 		return leftProfile;
 	}
 	
 	public double[][] getRightProfile() {
+		gottenRight = true;
 		return rightProfile;
+	}
+	
+	public boolean getStatus() {
+		return pathCompleted;
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		generateProfileFromDistances(numPointsCircle, numPointsTan, numPointsTransition, offset, distance, robotAng);
+		while(!gottenLeft || !gottenRight) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	

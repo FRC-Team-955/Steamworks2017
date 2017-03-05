@@ -16,7 +16,6 @@ public class VisionCore {
 	}
 	
 	public void update() {
-		SmartDashboard.putString("xml", socket.getXML());
 		try{
 			vs = xmlParser.parseString(socket.getXML());
 		} catch(Exception e) {

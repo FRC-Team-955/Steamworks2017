@@ -26,6 +26,8 @@ package core;
 
 import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.CANTalon.TalonControlMode;
 
 import config.PathConfig;
@@ -144,7 +146,9 @@ public class MotionProfileFollower {
 	public void control() {
 		/* Get the motion profile status every loop */
 		_talon.getMotionProfileStatus(_status);
-
+		
+		SmartDashboard.putNumber("_state", _state);
+		SmartDashboard.putNumber("_setValue", _setValue.value);
 		/*
 		 * track time, this is rudimentary but that's okay, we just want to make
 		 * sure things never get stuck.
@@ -180,6 +184,7 @@ public class MotionProfileFollower {
 			switch (_state) {
 				case 0: /* wait for application to tell us to start an MP */
 					if (_bStart) {
+						SmartDashboard.putBoolean("_bStart", _bStart);
 						_bStart = false;
 	
 						_setValue = CANTalon.SetValueMotionProfile.Disable;
@@ -235,7 +240,8 @@ public class MotionProfileFollower {
 
 	/** Start filling the MPs to all of the involved Talons. */
 	private void startFilling() {
-		startFilling(points, points.length);	
+		startFilling(points, points.length);
+		SmartDashboard.putNumber("points.length", points.length);
 	}
 	
 	

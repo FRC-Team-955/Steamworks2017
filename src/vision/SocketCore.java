@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class SocketCore implements Runnable {
 	public Socket visionSocket;
 	Socket clientSocket;
@@ -29,8 +31,8 @@ public class SocketCore implements Runnable {
 				in = new BufferedReader(new InputStreamReader(visionSocket.getInputStream()));	
 				System.out.println("in created.connected");
 				out.println("connected");
-			
 				init = true;
+				SmartDashboard.putBoolean("visionInit", init);
 				System.out.println("connected");
 			} catch(Exception e) {
 				System.out.println("visionServer initialization threw exception");
@@ -42,8 +44,10 @@ public class SocketCore implements Runnable {
 				out.println(Integer.toString(updateNumber));
 				try {
 					String input = in.readLine();
-					xml = input;									
+					xml = input;	
+					SmartDashboard.putString("visionXML", xml);
 				} catch (Exception e) {
+					
 				}
 				updateNumber++;
 				Thread.sleep(10);

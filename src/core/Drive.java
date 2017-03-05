@@ -5,6 +5,7 @@ import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 
 import config.DriveConfig;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drive {
 	CANTalon leftDrive1 = new CANTalon(DriveConfig.leftTalonChn1);
@@ -24,6 +25,18 @@ public class Drive {
 		rightDrive1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 		leftDrive1.configEncoderCodesPerRev(DriveConfig.codesPerRev);
 		rightDrive1.configEncoderCodesPerRev(DriveConfig.codesPerRev);
+		leftDrive1.reverseSensor(false);
+		leftDrive1.reverseOutput(true);
+		rightDrive1.reverseSensor(true);
+		leftDrive1.setP(DriveConfig.kPLeft);
+		leftDrive1.setI(DriveConfig.kILeft);
+		leftDrive1.setD(DriveConfig.kDLeft);
+		leftDrive1.setF(DriveConfig.kFLeft);
+		rightDrive1.setP(DriveConfig.kPRight);
+		rightDrive1.setI(DriveConfig.kIRight);
+		rightDrive1.setD(DriveConfig.kDRight);
+		rightDrive1.setF(DriveConfig.kFRight);
+		
 		leftDrive2.changeControlMode(TalonControlMode.Follower);
 		rightDrive2.changeControlMode(TalonControlMode.Follower);
 		leftDrive2.set(DriveConfig.leftTalonChn1);
@@ -42,7 +55,7 @@ public class Drive {
 		double right = y - x;
 		
 		if(leftDrive1.getControlMode() != TalonControlMode.MotionProfile) {
-			ramp(-left, right);	
+			ramp(left, -right);	
 		}
 	}
 	
@@ -51,17 +64,18 @@ public class Drive {
 		rightDrive1.set(right);
 	}
 	
-	public void motionProfileMode() {
+	public void motionProfileMode() {		
 		leftDrive1.changeControlMode(TalonControlMode.MotionProfile);
-		
-		CANTalon.SetValueMotionProfile leftSetOutput = leftFollower.getSetValue();
+		leftFollower.control();
 
 		rightDrive1.changeControlMode(TalonControlMode.MotionProfile);
-		
-		CANTalon.SetValueMotionProfile rightSetOutput = rightFollower.getSetValue();
+		rightFollower.control();
 				
-		leftDrive1.set(leftSetOutput.value);
-		rightDrive1.set(rightSetOutput.value);
+		leftDrive1.set(leftFollower.getSetValue().value);
+		rightDrive1.set(rightFollower.getSetValue().value);
+
+		SmartDashboard.putNumber("leftDriveOutput", leftFollower.getSetValue().value);
+		SmartDashboard.putNumber("rightDriveOutput", rightFollower.getSetValue().value);
 	}
 	
 	public void driveMode() {
@@ -79,6 +93,7 @@ public class Drive {
 	
 	public void setPaths(double[][]left, double[][]right) {
 		leftFollower.setPoints(left);
+		SmartDashboard.putString("leftPoint", (left[0][0] + "    " + left[0][1]  + "     " + left[5][2]));
 		rightFollower.setPoints(right);
 	}
 	
@@ -86,15 +101,15 @@ public class Drive {
 		if(Math.abs(wantSpeedLeft - leftDrive1.get()) > DriveConfig.rampRate){
 			
 			if(wantSpeedLeft > leftDrive1.get())
-				leftDrive1.set(leftDrive1.get() +  DriveConfig.rampRate);
+				leftDrive1.set((leftDrive1.get() +  DriveConfig.rampRate) * .85);
 			
 			else
-				leftDrive1.set(leftDrive1.get() - DriveConfig.rampRate);
+				leftDrive1.set((leftDrive1.get() - DriveConfig.rampRate) * 0.85);
 			
 		}
 		
 		else {
-			leftDrive1.set(wantSpeedLeft);
+			leftDrive1.set(wantSpeedLeft * .85);
 		}
 		
 		if(Math.abs(wantSpeedRight - rightDrive1.get()) > DriveConfig.rampRate){
@@ -110,5 +125,7 @@ public class Drive {
 		else {
 			rightDrive1.set(wantSpeedRight);
 		}
+		SmartDashboard.putNumber("leftDrive", leftDrive1.get());
+		SmartDashboard.putNumber("rightDrive", rightDrive1.get());
 	}
 }
