@@ -1,5 +1,6 @@
 package core;
 
+import auto.Auto;
 import config.PathConfig;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import vision.VisionCore;
@@ -20,6 +21,7 @@ public class Robot extends IterativeRobot {
 	Shooter shooter = new Shooter();
 	VisionCore vision = new VisionCore();
 	Climber climber = new Climber();
+	Auto auto = new Auto(drive, gear);
 	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, vision, climber);
 	
 	
@@ -45,7 +47,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-
+		auto.init();
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-
+		auto.run();
 	}
 
 	/**

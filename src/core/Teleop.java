@@ -92,18 +92,8 @@ public class Teleop {
 		
 		
 		// Path planning with vision to drop off gear
-		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
-			generating = true;
-			time = System.currentTimeMillis();
-			planner = new PathPlanner(PathConfig.dt, PathConfig.maxVel, PathConfig.maxAcc, PathConfig.robotTrackWidth, PathConfig.numPointsCircle, PathConfig.numPointsTan, PathConfig.numPointsTrans, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
-			SmartDashboard.putNumber("generationTimeMs", -2);
-			new Thread(planner).start();
-		} 
-		
-		if(generating && planner.getStatus()) {
-			generating = false;
-			SmartDashboard.putNumber("generationTimeMs", (time - System.currentTimeMillis()));
-			drive.setPaths(planner.getLeftProfile(), planner.getRightProfile());				
+		if(joy.getButton(JoyConfig.generatePathButton)) {
+			drive.setPaths(PathConfig.left, PathConfig.right);				
 		}
 		
 		if(joy.getDpadUp()) {
