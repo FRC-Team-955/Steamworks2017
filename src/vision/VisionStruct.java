@@ -2,6 +2,7 @@ package vision;
 
 import org.w3c.dom.Element;
 
+import config.PathConfig;
 import config.VisionConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -45,7 +46,7 @@ public class VisionStruct {
 			double distX = Double.parseDouble(n.getAttribute("x_offset_to_target"));
 			double distY = Double.parseDouble(n.getAttribute("distance_to_target"));
 			double ang = Double.parseDouble(n.getAttribute("angle"));
-			this.distX = Math.cos(Math.toRadians(90-ang)) * distY;
+			this.distX = (Math.cos(Math.toRadians(90-ang)) * distY) - PathConfig.offsetFromGear;
 			this.distY = Math.sin(Math.toRadians(90-ang)) * distY;
 			this.ang = -ang + 90;
 			timeMs = Integer.parseInt(n.getAttribute("timestamp"));

@@ -116,8 +116,8 @@ public class PathPlanner implements Runnable {
 			distance += segDistance;
 						
 			if(distance/dt > maxVel || (distance/dt) - lastVel > maxAcc * dt) {
+				//SmartDashboard.putString("pointGenerating", "distance/dt = " + (distance/dt) + "       acceleration = " + ((distance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
 				traj.add(new double[] {path[i][0], path[i][1]});
-				//System.out.println("distance/dt = " + (distance/dt) + "\t\t\tacceleration = " + ((distance/dt) - lastVel) + "\t\tlastVel = " + lastVel + "\t\tindex: " + i);
 				lastVel = (distance - segDistance)/dt;
 				distance = 0;
 				i--;
