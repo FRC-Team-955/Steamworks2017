@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PathPlanner implements Runnable {
 	private double dt, maxVel, maxAcc, robotTrackWidth, offset, distance, robotAng;
-	private int numPointsTan, numPointsCircle, numPointsTransition;
+	private int numPointsTan, numPointsCircle;
 	private boolean gottenLeft, gottenRight, pathCompleted = false;
 	private double[][] leftPath, rightPath, leftProfile, rightProfile;
 	
@@ -19,58 +19,111 @@ public class PathPlanner implements Runnable {
 	 * @param maxJerk Max jerk
 	 * @param robotTrackWidth Width of robot in feet
 	 */
-	public PathPlanner(double dt, double maxVel, double maxAcc, double robotTrackWidth, int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAng) {
+	public PathPlanner(double dt, double maxVel, double maxAcc, double robotTrackWidth, int numPointsCircle, int numPointsTan, double offset, double distance, double robotAng) {
 		this.dt = dt;
 		this.robotTrackWidth = robotTrackWidth;
 		this.maxVel = maxVel;
 		this.maxAcc = maxAcc;
 		this.numPointsCircle = numPointsCircle;
 		this.numPointsTan = numPointsTan;
-		this.numPointsTransition = numPointsTransition;
 		this.offset = offset;
 		this.distance = distance;
 		this.robotAng = robotAng;
 	}
 	
-	public double[][] generatePathPoints(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAngle) {
-		double[][] points = new double[numPointsCircle + numPointsTan + numPointsTransition][2];
+	public double[][] generatePathPoints(int numPointsCircle, int numPointsTan, double offset, double distance, double robotAngle) {
+		//double[][] points = new double[numPointsCircle + numPointsTan + numPointsTransition][2];
+		ArrayList<double[]> traj = new ArrayList<double[]>();
 		double radius = PathConfig.circleRad;
 		double transitionDistance = PathConfig.transDist;
 		
 		double startPoint = radius * Math.sin(robotAngle);
 		double x = startPoint;
 		double startY = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius;
+		traj.add(new double[] {x, startY});
+		double segDistance = 0;
+		double totalDistance = 0;
+		double lastVel = 0;
+		double currentY = 0;
+		double currentX = 0;
+		double lastY = 0;
+		double lastX = 0;
+		
 		for(int i = 0; i < numPointsCircle; i++) {
-			points[i][1] = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius - startY;
+			currentY = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius - startY;
+			currentX = x - startPoint;
+			segDistance = Math.sqrt(Math.pow((currentX - traj.get(traj.size() - 1)[0]),2) + Math.pow((currentY - traj.get(traj.size() - 1)[1]),2));
+			totalDistance += segDistance;
+						
+			if(totalDistance/dt > maxVel || (totalDistance/dt) - lastVel > maxAcc * dt) {
+				//SmartDashboard.putString("pointGenerating", "totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
+				traj.add(new double[] {lastX, lastY});
+				lastVel = (totalDistance - segDistance)/dt;
+				totalDistance = 0;
+				i--;
+			}
+			
+			lastX = currentX;
+			lastY = currentY;
+			
+			
 			if(robotAngle < Math.PI/2) {
-				points[i][0] = x - startPoint;
 				x += (radius - startPoint) / numPointsCircle;
 			} else {
-				points[i][0] = x - startPoint;
 				x -= (radius + startPoint) / numPointsCircle;
 			}
 		}
 		
-		double y = points[numPointsCircle - 1][1];
-		for(int i = numPointsCircle; i < numPointsTransition + numPointsCircle; i++) {
-			points[i][1] = y;
-			points[i][0] = points[numPointsCircle - 1][0];
-			y += transitionDistance/numPointsTransition;
-		}
-		
-		double tanOffset = offset - points[numPointsTransition + numPointsCircle - 1][0];
-		double tanDistance = distance - points[numPointsTransition + numPointsCircle - 1][1];
+		double tanOffset = offset - traj.get(traj.size()-1)[0];
+		double tanDistance = distance - traj.get(traj.size()-1)[1];
 		x = -0.5 * tanOffset;
 		double vertStretch = 0.125 * tanDistance;
 		double horzStretch = 1.185 * tanOffset;
 
-		for(int i = numPointsTransition + numPointsCircle; i < numPointsTan + numPointsCircle + numPointsTransition; i++) {
-			points[i][1] = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * tanDistance) + points[numPointsTransition + numPointsCircle - 1][1];
-			points[i][0] = x + (tanOffset/2) + points[numPointsTransition + numPointsCircle - 1][0];
-			x += ((tanOffset) / (numPointsTan));	
+		for(int i = numPointsCircle; i < numPointsTan + numPointsCircle; i++) {
+			currentY = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * tanDistance) + traj.get(traj.size()-1)[1];
+			currentX = x + (tanOffset/2) + traj.get(traj.size()-1)[0];
+			x += ((tanOffset) / (numPointsTan));
+			
+			segDistance = Math.sqrt(Math.pow((currentX - traj.get(traj.size() - 1)[0]),2) + Math.pow((currentY - traj.get(traj.size() - 1)[1]),2));
+			totalDistance += segDistance;
+			
+			if(totalDistance/dt > maxVel || (totalDistance/dt) - lastVel > maxAcc * dt) {
+				//SmartDashboard.putString("pointGenerating", "totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
+				traj.add(new double[] {lastX, lastY});
+				lastVel = (totalDistance - segDistance)/dt;
+				totalDistance = 0;
+				i--;
+			}
+			
+			lastX = currentX;
+			lastY = currentY;
 		}
-
-		return points;
+		
+		return traj.toArray(new double[traj.size()][2]);
+	}
+	
+	public double[][] removePoints(double[][] path, double currentVel) {
+		double distance = 0;
+		double lastVel = currentVel;
+		double segDistance = 0;
+		ArrayList<double[]> traj = new ArrayList<double[]>();
+		traj.add(new double[] {0,0});
+		
+		for(int i = 0; i < path.length-1; i++) {
+			segDistance = Math.sqrt(Math.pow((path[i+1][0] - path[i][0]),2) + Math.pow((path[i+1][1] - path[i][1]),2));
+			distance += segDistance;
+						
+			if(distance/dt > maxVel || (distance/dt) - lastVel > maxAcc * dt) {
+				//SmartDashboard.putString("pointGenerating", "distance/dt = " + (distance/dt) + "       acceleration = " + ((distance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
+				traj.add(new double[] {path[i][0], path[i][1]});
+				lastVel = (distance - segDistance)/dt;
+				distance = 0;
+				i--;
+			}
+		}
+		
+		return traj.toArray(new double[traj.size()][2]);
 	}
 	
 	/**
@@ -102,29 +155,6 @@ public class PathPlanner implements Runnable {
 		leftRightPosVel[leftRightPosVel.length-1][3] = 0;
 		
 		return leftRightPosVel;
-	}
-	
-	public double[][] removePoints(double[][] path, double currentVel) {
-		double distance = 0;
-		double lastVel = currentVel;
-		double segDistance = 0;
-		ArrayList<double[]> traj = new ArrayList<double[]>();
-		traj.add(new double[] {0,0});
-		
-		for(int i = 0; i < path.length-1; i++) {
-			segDistance = Math.sqrt(Math.pow((path[i+1][0] - path[i][0]),2) + Math.pow((path[i+1][1] - path[i][1]),2));
-			distance += segDistance;
-						
-			if(distance/dt > maxVel || (distance/dt) - lastVel > maxAcc * dt) {
-				//SmartDashboard.putString("pointGenerating", "distance/dt = " + (distance/dt) + "       acceleration = " + ((distance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
-				traj.add(new double[] {path[i][0], path[i][1]});
-				lastVel = (distance - segDistance)/dt;
-				distance = 0;
-				i--;
-			}
-		}
-		
-		return traj.toArray(new double[traj.size()][2]);
 	}
 	
 	private void leftRight(double[][] smoothPath) {
@@ -190,10 +220,10 @@ public class PathPlanner implements Runnable {
 		SmartDashboard.putString("rightProfileDist", right);
 	}
 	
-	public void generateProfileFromDistances(int numPointsCircle, int numPointsTan, int numPointsTransition, double offset, double distance, double robotAng) {
+	public void generateProfileFromDistances(int numPointsCircle, int numPointsTan, double offset, double distance, double robotAng) {
 		SmartDashboard.putBoolean("pathCompleted", pathCompleted);
 		SmartDashboard.putNumber("FinishedParts", 0);
-		leftRight(removePoints(generatePathPoints(numPointsCircle, numPointsTan, numPointsTransition, offset, distance, Math.toRadians(robotAng)), 0));
+		leftRight(generatePathPoints(numPointsCircle, numPointsTan, offset, distance, Math.toRadians(robotAng)));
 		generateProfileArray(generateMotionProfile());
 		pathCompleted = true;
 		SmartDashboard.putBoolean("pathCompleted", pathCompleted);
@@ -216,7 +246,7 @@ public class PathPlanner implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		generateProfileFromDistances(numPointsCircle, numPointsTan, numPointsTransition, offset, distance, robotAng);
+		generateProfileFromDistances(numPointsCircle, numPointsTan, offset, distance, robotAng);
 		while(!gottenLeft || !gottenRight) {
 			try {
 				Thread.sleep(10);

@@ -95,7 +95,7 @@ public class Teleop {
 		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
 			generating = true;
 			time = System.currentTimeMillis();
-			planner = new PathPlanner(PathConfig.dt, PathConfig.maxVel, PathConfig.maxAcc, PathConfig.robotTrackWidth, PathConfig.numPointsCircle, PathConfig.numPointsTan, PathConfig.numPointsTrans, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
+			planner = new PathPlanner(PathConfig.dt, PathConfig.maxVel, PathConfig.maxAcc, PathConfig.robotTrackWidth, PathConfig.numPointsCircle, PathConfig.numPointsTan, vision.getVisionStruct().getDistX(), vision.getVisionStruct().getDistY(), vision.getVisionStruct().ang());
 			SmartDashboard.putNumber("generationTimeMs", -2);
 			new Thread(planner).start();
 		} 
