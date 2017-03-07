@@ -48,6 +48,7 @@ public class PathPlanner implements Runnable {
 		double lastY = 0;
 		double lastX = 0;
 		
+		double time = System.currentTimeMillis();
 		for(int i = 0; i < numPointsCircle; i++) {
 			currentY = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius - startY;
 			currentX = x - startPoint;
@@ -57,7 +58,7 @@ public class PathPlanner implements Runnable {
 			if(totalDistance/dt > maxVel || (totalDistance/dt) - lastVel > maxAcc * dt) {
 				//SmartDashboard.putString("pointGenerating", "totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
 				traj.add(new double[] {lastX, lastY});
-				System.out.println("Adding circle: " + lastX + "    |    " + lastY);
+				//System.out.println("Adding circle: " + lastX + "    |    " + lastY);
 				lastVel = (totalDistance - segDistance)/dt;
 				totalDistance = 0;
 				i--;
@@ -95,7 +96,7 @@ public class PathPlanner implements Runnable {
 			if(totalDistance/dt > maxVel || (totalDistance/dt) - lastVel > maxAcc * dt) {
 				//System.out.println("totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
 				traj.add(new double[] {lastX, lastY});
-				System.out.println("Adding tangent: " + lastX + "    |    " + lastY);
+				//System.out.println("Adding tangent: " + lastX + "    |    " + lastY);
 				lastVel = (totalDistance - segDistance)/dt;
 				totalDistance = 0;
 				i--;
@@ -106,7 +107,8 @@ public class PathPlanner implements Runnable {
 			lastX = currentX;
 			lastY = currentY;
 		}
-		
+
+		SmartDashboard.putNumber("arraySize", traj.size());
 		return traj.toArray(new double[traj.size()][2]);
 	}
 	
@@ -160,7 +162,7 @@ public class PathPlanner implements Runnable {
 		leftRightPosVel[leftRightPosVel.length-1][1] = 0;
 		leftRightPosVel[leftRightPosVel.length-1][2] = rightPos;
 		leftRightPosVel[leftRightPosVel.length-1][3] = 0;
-		
+
 		return leftRightPosVel;
 	}
 	
@@ -204,6 +206,7 @@ public class PathPlanner implements Runnable {
 	}
 	
 	private void generateProfileArray(double[][] leftRightPosVel) {
+		double time = System.currentTimeMillis();
 		leftProfile = new double[leftRightPosVel.length][3];
 		rightProfile = new double[leftRightPosVel.length][3];
 		
@@ -223,14 +226,16 @@ public class PathPlanner implements Runnable {
 
 			right += rightProfile[i][0] + "    ";
 		}
+		
+		SmartDashboard.putNumber("timeForCircle", System.currentTimeMillis() - time);
 		SmartDashboard.putString("leftProfileDist", left);
 		SmartDashboard.putString("rightProfileDist", right);
 	}
 	
 	public void generateProfileFromDistances(int numPointsCircle, int numPointsTan, double offset, double distance, double robotAng) {
 		SmartDashboard.putBoolean("pathCompleted", pathCompleted);
-		SmartDashboard.putNumber("FinishedParts", 0);
 		leftRight(generatePathPoints(numPointsCircle, numPointsTan, offset, distance, Math.toRadians(robotAng)));
+		double time = System.currentTimeMillis();
 		generateProfileArray(generateMotionProfile());
 		pathCompleted = true;
 		SmartDashboard.putBoolean("pathCompleted", pathCompleted);
