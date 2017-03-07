@@ -34,13 +34,12 @@ public class PathPlanner implements Runnable {
 	public double[][] generatePathPoints(int numPointsCircle, int numPointsTan, double offset, double distance, double robotAngle) {
 		//double[][] points = new double[numPointsCircle + numPointsTan + numPointsTransition][2];
 		ArrayList<double[]> traj = new ArrayList<double[]>();
-		double radius = PathConfig.circleRad;
-		double transitionDistance = PathConfig.transDist;
+		double radius = 40;
 		
 		double startPoint = radius * Math.sin(robotAngle);
 		double x = startPoint;
 		double startY = -1 * Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2)) + radius;
-		traj.add(new double[] {x, startY});
+		traj.add(new double[] {0, 0});
 		double segDistance = 0;
 		double totalDistance = 0;
 		double lastVel = 0;
@@ -58,19 +57,24 @@ public class PathPlanner implements Runnable {
 			if(totalDistance/dt > maxVel || (totalDistance/dt) - lastVel > maxAcc * dt) {
 				//SmartDashboard.putString("pointGenerating", "totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
 				traj.add(new double[] {lastX, lastY});
+				System.out.println("Adding circle: " + lastX + "    |    " + lastY);
 				lastVel = (totalDistance - segDistance)/dt;
 				totalDistance = 0;
 				i--;
+			} else {
+				if(robotAngle < Math.PI/2) {
+					x += (radius - startPoint) / numPointsCircle;
+				} else {
+					x -= (radius + startPoint) / numPointsCircle;
+				}
 			}
 			
 			lastX = currentX;
 			lastY = currentY;
 			
 			
-			if(robotAngle < Math.PI/2) {
-				x += (radius - startPoint) / numPointsCircle;
-			} else {
-				x -= (radius + startPoint) / numPointsCircle;
+			if(x >= 40) {
+				break;
 			}
 		}
 		
@@ -79,21 +83,24 @@ public class PathPlanner implements Runnable {
 		x = -0.5 * tanOffset;
 		double vertStretch = 0.125 * tanDistance;
 		double horzStretch = 1.185 * tanOffset;
-
+		int lastCircleIndex = traj.size()-1;
+		
 		for(int i = numPointsCircle; i < numPointsTan + numPointsCircle; i++) {
-			currentY = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * tanDistance) + traj.get(traj.size()-1)[1];
-			currentX = x + (tanOffset/2) + traj.get(traj.size()-1)[0];
-			x += ((tanOffset) / (numPointsTan));
+			currentY = vertStretch * Math.tan((Math.PI * x) / horzStretch) + (0.5 * tanDistance) + traj.get(lastCircleIndex)[1];
+			currentX = x + (tanOffset/2) + traj.get(lastCircleIndex)[0];
 			
 			segDistance = Math.sqrt(Math.pow((currentX - traj.get(traj.size() - 1)[0]),2) + Math.pow((currentY - traj.get(traj.size() - 1)[1]),2));
 			totalDistance += segDistance;
 			
 			if(totalDistance/dt > maxVel || (totalDistance/dt) - lastVel > maxAcc * dt) {
-				//SmartDashboard.putString("pointGenerating", "totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
+				//System.out.println("totalDistance/dt = " + (totalDistance/dt) + "       acceleration = " + ((totalDistance/dt) - lastVel) + "      lastVel = " + lastVel + "\t\tindex: " + i);
 				traj.add(new double[] {lastX, lastY});
+				System.out.println("Adding tangent: " + lastX + "    |    " + lastY);
 				lastVel = (totalDistance - segDistance)/dt;
 				totalDistance = 0;
 				i--;
+			} else {
+				x += ((tanOffset) / (numPointsTan));
 			}
 			
 			lastX = currentX;
