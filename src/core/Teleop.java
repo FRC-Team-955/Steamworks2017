@@ -90,7 +90,7 @@ public class Teleop {
 			gear.close();
 		}
 		
-		
+		/*
 		// Path planning with vision to drop off gear
 		if(joy.getButton(JoyConfig.generatePathButton) && vision.getVisionStruct().tapeStatus().equalsIgnoreCase("both")) {
 			generating = true;
@@ -112,9 +112,9 @@ public class Teleop {
 				drive.startMotionProfile();	
 			}
 		}
-		
+		*/
 		if(joy.getRawButton(JoyConfig.followPathButton)) {
-			drive.motionProfileMode();
+			//drive.motionProfileMode();
 		} else {
 			drive.driveMode();
 			notStarted = true;

@@ -5,6 +5,7 @@ import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 
 import config.DriveConfig;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drive {
@@ -12,6 +13,7 @@ public class Drive {
 	CANTalon leftDrive2 = new CANTalon(DriveConfig.leftTalonChn2);
 	CANTalon rightDrive1 = new CANTalon(DriveConfig.rightTalonChn1);
 	CANTalon rightDrive2 = new CANTalon(DriveConfig.rightTalonChn2);
+	PowerDistributionPanel pdp = new PowerDistributionPanel();
 	
 	MotionProfileFollower leftFollower = new MotionProfileFollower(leftDrive1);
 	MotionProfileFollower rightFollower = new MotionProfileFollower(rightDrive1);
@@ -26,7 +28,8 @@ public class Drive {
 		leftDrive1.configEncoderCodesPerRev(DriveConfig.codesPerRev);
 		rightDrive1.configEncoderCodesPerRev(DriveConfig.codesPerRev);
 		leftDrive1.reverseSensor(false);
-		leftDrive1.reverseOutput(true);
+		leftDrive1.reverseOutput(false);
+		rightDrive1.reverseOutput(true);
 		rightDrive1.reverseSensor(true);
 		leftDrive1.setP(DriveConfig.kPLeft);
 		leftDrive1.setI(DriveConfig.kILeft);
@@ -55,13 +58,17 @@ public class Drive {
 		double right = y - x;
 		
 		if(leftDrive1.getControlMode() != TalonControlMode.MotionProfile) {
-			ramp(left, -right);	
+			ramp(-left, right);	
 		}
 	}
 	
 	public void set(double left, double right) {
 		leftDrive1.set(left);
 		rightDrive1.set(right);
+	}
+	
+	public int getSetValue() {
+		return leftFollower.getSetValue().value;
 	}
 	
 	public void motionProfileMode() {		
@@ -84,6 +91,11 @@ public class Drive {
 		
 		leftFollower.reset();
 		rightFollower.reset();
+		
+		SmartDashboard.putNumber("Right 1 Current", pdp.getCurrent(3));
+		SmartDashboard.putNumber("Right 2 Current", pdp.getCurrent(13));
+		SmartDashboard.putNumber("Left 3 Current", pdp.getCurrent(14));
+		SmartDashboard.putNumber("Left 4 Current", pdp.getCurrent(15));
 	}
 	
 	public void startMotionProfile() {
@@ -101,15 +113,15 @@ public class Drive {
 		if(Math.abs(wantSpeedLeft - leftDrive1.get()) > DriveConfig.rampRate){
 			
 			if(wantSpeedLeft > leftDrive1.get())
-				leftDrive1.set((leftDrive1.get() +  DriveConfig.rampRate) * .85);
+				leftDrive1.set((leftDrive1.get() +  DriveConfig.rampRate));
 			
 			else
-				leftDrive1.set((leftDrive1.get() - DriveConfig.rampRate) * 0.85);
+				leftDrive1.set((leftDrive1.get() - DriveConfig.rampRate));
 			
 		}
 		
 		else {
-			leftDrive1.set(wantSpeedLeft * .85);
+			leftDrive1.set(wantSpeedLeft);
 		}
 		
 		if(Math.abs(wantSpeedRight - rightDrive1.get()) > DriveConfig.rampRate){

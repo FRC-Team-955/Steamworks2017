@@ -12,8 +12,8 @@ public class JoyConfig {
 	public static final int portNum = 0;
 	
 	// Buttons
-	public static final int intakeOnButton = 7;
-	public static final int intakeOffButton = 8;
+	public static final int intakeOnButton = 8;
+	public static final int intakeOffButton = 7;
 	public static final int agitatorOnButton = 4;
 	public static final int agitatorOffButton = 2;
 	public static final int gearOpenButton = 5;

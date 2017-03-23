@@ -1,6 +1,7 @@
 package core;
 
 import auto.Auto;
+import auto.AutoChooser;
 import config.PathConfig;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import vision.VisionCore;
@@ -24,14 +25,14 @@ public class Robot extends IterativeRobot {
 	Auto auto = new Auto(drive, gear);
 	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, vision, climber);
 	
-	
+
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-
+		AutoChooser.init();
 	}
 
 	/**

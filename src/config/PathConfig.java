@@ -1,7 +1,7 @@
 package config;
 
 public class PathConfig {
-	public static final double dt = 0.05; // How many seconds each segment lasts for
+	public static final double dt = 0.02; // How many seconds each segment lasts for
 	public static final double maxVel = 120; // inches/second
 	public static final double maxAcc = 100; // (inches/second) / second
 	public static final int numPointsCircle = 10000; // More means more time but smoother curves, won't converge if too low
