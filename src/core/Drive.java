@@ -58,7 +58,7 @@ public class Drive {
 		double right = y - x;
 		
 		if(leftDrive1.getControlMode() != TalonControlMode.MotionProfile) {
-			ramp(-left, right);	
+			ramp(left, -right);	  //-l +r on comp bot
 		}
 	}
 	
