@@ -44,9 +44,9 @@ public class Teleop {
 	public void run(){
 		driveTeleop();	
 		intakeTeleop();
-		agitatorTeleop();
+		//agitatorTeleop();
 		gearTeleop();
-		//shooterTeleop();
+		shooterTeleop();
 		climberTeleop();
 		vision.update();
 		joy.update();

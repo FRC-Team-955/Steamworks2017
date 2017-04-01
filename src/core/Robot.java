@@ -22,7 +22,8 @@ public class Robot extends IterativeRobot {
 	Shooter shooter = new Shooter();
 	VisionCore vision = new VisionCore();
 	Climber climber = new Climber();
-	Auto auto = new Auto(drive, gear);
+	Auto auto = new Auto(drive, gear, shooter);
+	Test test = new Test(drive, intake, climber, gear);
 	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, vision, climber);
 	
 
@@ -67,11 +68,16 @@ public class Robot extends IterativeRobot {
 		teleop.run();
 	}
 
+	public void testInit() {
+		test.init();
+	}
+	
 	/**
 	 * This function is called periodically during test mode
 	 */
 	@Override
 	public void testPeriodic() {
+		test.run();
 	}
 }
 
