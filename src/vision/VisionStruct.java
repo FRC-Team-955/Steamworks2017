@@ -2,6 +2,7 @@ package vision;
 
 import org.w3c.dom.Element;
 
+import auto.MiddleGearAuto;
 import config.PathConfig;
 import config.VisionConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -9,9 +10,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionStruct {
 	
-	private double distX, distY, ang;
-	private int timeMs;
-	private String tapeStatus;
+	private double distX, distY, ang = 0;
+	private double[][] leftPath = new double[0][0];
+	private double[][] rightPath = new double[0][0];
+	private int timeMs = 0;
+	private String tapeStatus = "none";
+	
+	public double[][] getLeftPath() {
+		SmartDashboard.putNumber("leftPathLenght", leftPath.length);
+		return leftPath;
+	}
+	
+	public double[][] getRightPath() {
+		SmartDashboard.putNumber("rightPathLenght", rightPath.length);
+		return rightPath;
+	}
 	
 	public double getDistX() {
 		return distX;
@@ -39,6 +52,11 @@ public class VisionStruct {
 		this.ang = ang;
 		this.timeMs = timeMs;
 		this.tapeStatus = tapeStatus;
+	}
+	
+	public void setPaths(double[][] left, double right[][]) {
+		leftPath = left;
+		rightPath = right;
 	}
 	
 	public void update(Element n) {

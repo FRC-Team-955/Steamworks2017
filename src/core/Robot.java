@@ -22,7 +22,7 @@ public class Robot extends IterativeRobot {
 	Shooter shooter = new Shooter();
 	VisionCore vision = new VisionCore();
 	Climber climber = new Climber();
-	Auto auto = new Auto(drive, gear, shooter);
+	Auto auto = new Auto(drive, gear, shooter, vision);
 	Test test = new Test(drive, intake, climber, gear);
 	Teleop teleop = new Teleop(drive, intake, agitator, gear, shooter, vision, climber);
 	

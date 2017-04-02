@@ -28,8 +28,8 @@ public class Drive {
 		leftDrive1.configEncoderCodesPerRev(DriveConfig.codesPerRev);
 		rightDrive1.configEncoderCodesPerRev(DriveConfig.codesPerRev);
 		leftDrive1.reverseSensor(false);
-		leftDrive1.reverseOutput(false);
-		rightDrive1.reverseOutput(true);
+		leftDrive1.reverseOutput(true);
+		rightDrive1.reverseOutput(false);
 		rightDrive1.reverseSensor(true);
 		leftDrive1.setP(DriveConfig.kPLeft);
 		leftDrive1.setI(DriveConfig.kILeft);
@@ -105,7 +105,6 @@ public class Drive {
 	
 	public void setPaths(double[][]left, double[][]right) {
 		leftFollower.setPoints(left);
-		SmartDashboard.putString("leftPoint", (left[0][0] + "    " + left[0][1]  + "     " + left[5][2]));
 		rightFollower.setPoints(right);
 	}
 	

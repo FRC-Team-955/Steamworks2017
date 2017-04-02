@@ -1,6 +1,7 @@
 package auto;
 
 import edu.wpi.first.wpilibj.Timer;
+import vision.VisionCore;
 import config.AutoConfig;
 import core.Drive;
 import core.Gear;
@@ -10,13 +11,15 @@ public class Auto {
 	public Drive drive;
 	public Gear gear;
 	public Shooter shooter;
+	public VisionCore vision;
 	Timer timer = new Timer();
 	public int step = 0;
 	
-	public Auto(Drive drive, Gear gear, Shooter shooter) {
+	public Auto(Drive drive, Gear gear, Shooter shooter, VisionCore vision) {
 		this.drive = drive;
 		this.gear = gear;
 		this.shooter = shooter;
+		this.vision = vision;
 	}
 	
 	public void init() {
@@ -28,8 +31,7 @@ public class Auto {
 			step = 1000;
 			break;
 		case AutoConfig.middleGearId:
-			step = 0;
-			drive.setPaths(MiddleGearAuto.leftPath, MiddleGearAuto.rightPath);	
+			step = 0;	
 			break;
 		case AutoConfig.shooterId:
 			step = 500;
@@ -39,11 +41,13 @@ public class Auto {
 	}
 	
 	public void run() {
+		vision.update();
 		drive.motionProfileMode();
 		
 		switch (step) {
 		case 0:
 			if(timer.get() > 0.2) {
+				drive.setPaths(vision.getVisionStruct().getLeftPath(), vision.getVisionStruct().getRightPath());
 				drive.startMotionProfile();
 				timer.reset();
 				timer.stop();

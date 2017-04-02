@@ -46,8 +46,9 @@ public class SocketCore implements Runnable {
 					String input = in.readLine();
 					xml = input;	
 					SmartDashboard.putString("visionXML", xml);
+					SmartDashboard.putBoolean("visionException", false);
 				} catch (Exception e) {
-					
+					SmartDashboard.putBoolean("visionException", true);
 				}
 				updateNumber++;
 				Thread.sleep(10);
